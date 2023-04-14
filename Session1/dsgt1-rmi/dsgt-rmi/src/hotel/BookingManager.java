@@ -8,7 +8,7 @@ import java.util.Set;
 public class BookingManager {
 
 	private Room[] rooms;
-
+	private BookingDetail[] bookings;
 	public BookingManager() {
 		this.rooms = initializeRooms();
 	}
@@ -24,16 +24,46 @@ public class BookingManager {
 
 	public boolean isRoomAvailable(Integer roomNumber, LocalDate date) {
 		//implement this method
+		for(Room room: rooms){
+			if(room.getRoomNumber().equals(roomNumber)){
+				if(getAvailableRooms(date).contains(room.getRoomNumber())){
+					return true;
+				}
+			}
+		}
 		return false;
 	}
 
 	public void addBooking(BookingDetail bookingDetail) {
-		//implement this method
+		for (Room room : rooms) {
+			if (room.getRoomNumber().equals(bookingDetail.getRoomNumber())) {
+				if (!isRoomAvailable(room.getRoomNumber(), bookingDetail.getDate())) {
+					throw new IllegalArgumentException("Room is not available on the specified date.");
+				}
+				room.getBookings().add(bookingDetail);
+				return;
+			}
+		}
+		throw new IllegalArgumentException("Room not found.");
 	}
 
 	public Set<Integer> getAvailableRooms(LocalDate date) {
 		//implement this method
-		return null;
+		Set<Integer> allAvailableRooms = new HashSet<Integer>();
+		for (Room room : rooms) {
+			boolean available = true;
+			for (BookingDetail booking : room.getBookings()) {
+				if (booking.getDate().equals(date)) {
+					available = false;
+					allAvailableRooms.remove(room.getRoomNumber());
+					break;
+				}
+			}
+			if(available){
+				allAvailableRooms.add(room.getRoomNumber());
+			}
+		}
+		return allAvailableRooms;
 	}
 
 	private static Room[] initializeRooms() {
