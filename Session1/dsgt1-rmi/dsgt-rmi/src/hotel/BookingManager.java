@@ -1,21 +1,22 @@
 package hotel;
 
+import java.rmi.RemoteException;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-public class BookingManager {
+public class BookingManager implements IBooking {
 
-	private Room[] rooms;
-	private BookingDetail[] bookings;
+	private final Room[] rooms;
+	//private BookingDetail[] bookings;
 	public BookingManager() {
 		this.rooms = initializeRooms();
 	}
 
 	public Set<Integer> getAllRooms() {
 		Set<Integer> allRooms = new HashSet<Integer>();
-		Iterable<Room> roomIterator = Arrays.asList(rooms);
+		Room[] roomIterator = rooms;
 		for (Room room : roomIterator) {
 			allRooms.add(room.getRoomNumber());
 		}
@@ -55,7 +56,7 @@ public class BookingManager {
 			for (BookingDetail booking : room.getBookings()) {
 				if (booking.getDate().equals(date)) {
 					available = false;
-					allAvailableRooms.remove(room.getRoomNumber());
+					//allAvailableRooms.remove(room.getRoomNumber());
 					break;
 				}
 			}
@@ -74,4 +75,6 @@ public class BookingManager {
 		rooms[3] = new Room(203);
 		return rooms;
 	}
+
+
 }
