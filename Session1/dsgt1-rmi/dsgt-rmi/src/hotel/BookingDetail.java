@@ -1,14 +1,18 @@
 package hotel;
 
+import java.io.Serializable;
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.time.LocalDate;
 
-public class BookingDetail {
+public class BookingDetail implements Serializable {
 
 	private String guest;
 	private Integer roomNumber;
 	private LocalDate date;
 
-	public BookingDetail(String guest, Integer roomNumber, LocalDate date) {
+	public BookingDetail(String guest, Integer roomNumber, LocalDate date) throws RemoteException {
+		super();
 		this.guest = guest;
 		this.roomNumber = roomNumber;
 		this.date = date;

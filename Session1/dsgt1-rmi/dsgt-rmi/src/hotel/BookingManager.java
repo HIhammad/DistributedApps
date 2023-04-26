@@ -1,16 +1,19 @@
 package hotel;
 
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-public class BookingManager implements IBooking {
+public class BookingManager extends UnicastRemoteObject implements IBooking  {
 
 	private final Room[] rooms;
+
 	//private BookingDetail[] bookings;
-	public BookingManager() {
+	public BookingManager() throws RemoteException {
+		super();
 		this.rooms = initializeRooms();
 	}
 
@@ -36,6 +39,7 @@ public class BookingManager implements IBooking {
 	}
 
 	public void addBooking(BookingDetail bookingDetail) {
+		//System.out.println(bookingDetail);
 		for (Room room : rooms) {
 			if (room.getRoomNumber().equals(bookingDetail.getRoomNumber())) {
 				if (!isRoomAvailable(room.getRoomNumber(), bookingDetail.getDate())) {

@@ -2,6 +2,7 @@ package staff;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.time.LocalDate;
 import java.util.Set;
 import java.rmi.registry.LocateRegistry;
@@ -55,12 +56,15 @@ public class BookingClient extends AbstractScriptedSimpleTest {
 	@Override
 	public void addBooking(BookingDetail bookingDetail) throws Exception {
 		//Implement this method
+		//BookingDetail bookingDetailRemote = UnicastRemoteObject.exportObject(bookingDetail, 1089);;
 		booking.addBooking(bookingDetail);
+
 	}
 
 	@Override
 	public Set<Integer> getAvailableRooms(LocalDate date) throws Exception {
 		//Implement this method
+
 		return booking.getAvailableRooms(date);
 	}
 
