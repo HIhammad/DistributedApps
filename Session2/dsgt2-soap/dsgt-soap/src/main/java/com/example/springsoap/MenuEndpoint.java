@@ -15,6 +15,7 @@ public class MenuEndpoint {
     private static final String NAMESPACE_URI = "http://foodmenu.io/gt/webservice";
 
     private MealRepository mealrepo;
+    private Restaurant restaurant;
 
     @Autowired
     public MenuEndpoint(MealRepository mealrepo) {
@@ -35,9 +36,23 @@ public class MenuEndpoint {
     public GetLargestMealResponse getLargestMeal(@RequestPayload GetLargestMealRequest request) {
         GetLargestMealResponse response = new GetLargestMealResponse();
         response.setMeal(mealrepo.findBiggestMeal());
-
         return response;
     }
 
+    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "getCheapestMealRequest")
+    @ResponsePayload
+    public GetCheapestMealResponse getCheapestMeal(@RequestPayload GetCheapestMealRequest request) {
+        GetCheapestMealResponse response = new GetCheapestMealResponse();
+        response.setMeal(mealrepo.findCheapestMeal());
+        return response;
+    }
+
+    @PayloadRoot(namespace = NAMESPACE_URI, localPart = "AddOrderRequest")
+    @ResponsePayload
+    public AddOrderResponse addOrder(@RequestPayload AddOrderRequest request) {
+        AddOrderResponse response = new AddOrderResponse();
+        response.setOrderConfirmed(restaurant.addOrder(request.getOrder()));
+        return response;
+    }
 
 }
