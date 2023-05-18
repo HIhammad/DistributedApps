@@ -12,7 +12,10 @@ import org.springframework.security.web.firewall.DefaultHttpFirewall;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
+import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.FirestoreOptions;
 
+import com.google.auth.oauth2.GoogleCredentials;
 import java.io.IOException;
 import java.util.Objects;
 
@@ -37,7 +40,16 @@ public class Application {
 
     @Bean
     public String projectId() {
-        return "demo-distributed-systems-kul";
+        return "Distributed Apps";
+    }
+
+    @Bean
+    public Firestore firestore() throws IOException {
+        FirestoreOptions firestoreOptions = FirestoreOptions.getDefaultInstance().toBuilder()
+                .setProjectId(projectId())
+                .setCredentials(GoogleCredentials.getApplicationDefault())
+                .build();
+        return firestoreOptions.getService();
     }
 
     /*

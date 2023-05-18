@@ -4,7 +4,9 @@ import be.kuleuven.distributedsystems.cloud.entities.Booking;
 import be.kuleuven.distributedsystems.cloud.entities.User;
 import com.google.api.client.util.ArrayMap;
 import org.springframework.stereotype.Component;
-
+import com.google.cloud.firestore.CollectionReference;
+import com.google.cloud.firestore.DocumentReference;
+import com.google.cloud.firestore.Firestore;
 import java.beans.Customizer;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -17,6 +19,7 @@ public class BookingManager {
 
     public BookingManager()
     {
+  
         this.bookings = new ArrayList<>();
     }
 
@@ -87,6 +90,8 @@ public class BookingManager {
 
     public void addBooking(Booking booking)
     {
+
+
         this.bookings.add(booking);
     }
 
