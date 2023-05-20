@@ -102,6 +102,8 @@ public class BookingManager {
         Map<String, Object> data = new HashMap<>();
         data.put("id", booking.getId().toString());
         data.put("time", booking.getTime().toString());
+        //data.put("id", booking.getId());
+        //data.put("time", booking.getTime()); how to send it as a time 
         data.put("tickets", booking.getTickets());
         data.put("customer", booking.getCustomer());
 
