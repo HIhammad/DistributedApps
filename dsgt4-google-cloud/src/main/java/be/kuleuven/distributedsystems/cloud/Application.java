@@ -17,8 +17,12 @@ import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.FirestoreOptions;
 
 import com.google.auth.oauth2.GoogleCredentials;
+
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.UUID;
 
 @EnableHypermediaSupport(type = EnableHypermediaSupport.HypermediaType.HAL)
 @SpringBootApplication
@@ -27,16 +31,13 @@ public class Application {
     @SuppressWarnings("unchecked")
     public static void main(String[] args) throws IOException {
         System.setProperty("server.port", System.getenv().getOrDefault("PORT", "8080"));
-        String credentialsPath = "/Home/hussain/Documents/distributed-apps-firebase-adminsdk-8ov9h-6b772624c3.json";
 
-        // Set the GOOGLE_APPLICATION_CREDENTIALS environment variable
-        System.setProperty("GOOGLE_APPLICATION_CREDENTIALS", credentialsPath);
         ApplicationContext context = SpringApplication.run(Application.class, args);
         Firestore firestore = firestore();
         BookingManager bookingManager = context.getBean(BookingManager.class);
         bookingManager.setFirestore(firestore);
-        //Booking demo = new Booking(null, null, null, null);
-       // bookingManager.addBooking(demo);
+        Booking demo = new Booking(UUID.randomUUID(), LocalDateTime.now(), null, null);
+        bookingManager.addBooking(demo);
         // TODO: (level 2) load this data into Firestore
         String data = new String(new ClassPathResource("data.json").getInputStream().readAllBytes());
     }
@@ -48,7 +49,7 @@ public class Application {
 
     @Bean
     public static String projectId() {
-        return "Distributed Apps";
+        return "distributed-apps";
     }
 
     @Bean

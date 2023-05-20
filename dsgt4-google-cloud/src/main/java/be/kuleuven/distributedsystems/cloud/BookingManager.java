@@ -97,8 +97,7 @@ public class BookingManager {
     public void addBooking(Booking booking) {
 
         CollectionReference bookingsCollection = firestore.collection("bookings");
-        DocumentReference bookingDoc = bookingsCollection.document();
-        booking.setId(UUID.fromString(bookingDoc.getId()));
+        DocumentReference bookingDoc = bookingsCollection.document(booking.getId().toString());
 
         Map<String, Object> data = new HashMap<>();
         data.put("id", booking.getId().toString());
