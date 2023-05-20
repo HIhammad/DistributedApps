@@ -26,6 +26,10 @@ public class Booking {
         return this.id;
     }
 
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
     public LocalDateTime getTime() {
         return this.time;
     }

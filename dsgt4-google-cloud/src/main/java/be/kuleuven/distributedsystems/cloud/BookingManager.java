@@ -3,23 +3,29 @@ package be.kuleuven.distributedsystems.cloud;
 import be.kuleuven.distributedsystems.cloud.entities.Booking;
 import be.kuleuven.distributedsystems.cloud.entities.User;
 import com.google.api.client.util.ArrayMap;
+import com.google.api.core.ApiFuture;
+import com.google.cloud.firestore.WriteResult;
 import org.springframework.stereotype.Component;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.Firestore;
 import java.beans.Customizer;
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 @Component
 public class BookingManager {
+    ArrayList<Booking> bookings;
+
+    public Firestore getFirestore() {
+        return firestore;
+    }
+    private Firestore firestore;
 
     public BookingManager()
     {
-  
+
         this.bookings = new ArrayList<>();
     }
 
@@ -88,15 +94,34 @@ public class BookingManager {
         return bookings;
     }
 
-    public void addBooking(Booking booking)
-    {
+    public void addBooking(Booking booking) {
 
+        CollectionReference bookingsCollection = firestore.collection("bookings");
+        DocumentReference bookingDoc = bookingsCollection.document();
+        booking.setId(UUID.fromString(bookingDoc.getId()));
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("id", booking.getId().toString());
+        data.put("time", booking.getTime().toString());
+        data.put("tickets", booking.getTickets());
+        data.put("customer", booking.getCustomer());
+
+        ApiFuture<WriteResult> result = bookingDoc.set(data);
+        try {
+            WriteResult writeResult = result.get();
+            // Write operation completed successfully
+            System.out.println("Booking added to Firestore: " + booking.getId());
+        } catch (InterruptedException | ExecutionException e) {
+            // Handle exceptions
+            System.err.println("Error adding booking to Firestore: " + e.getMessage());
+        }
 
         this.bookings.add(booking);
     }
 
-    ArrayList<Booking> bookings;
-
+    public void setFirestore(Firestore firestore) {
+        this.firestore = firestore;
+    }
 
 
 

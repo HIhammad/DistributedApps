@@ -17,5 +17,9 @@
       "host": "0.0.0.0",
       "port": 8084
     }
+  },
+  "firestore": {
+    "rules": "rules1",
+    "indexes": "indexes1"
   }
 }
