@@ -1,6 +1,7 @@
 package be.kuleuven.distributedsystems.cloud.auth;
 
 import be.kuleuven.distributedsystems.cloud.entities.User;
+import com.auth0.jwt.JWT;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -24,9 +25,16 @@ public class SecurityFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         // TODO: (level 1) decode Identity Token and assign correct email and role
+
+        var header = request.getHeader("Authorization");
+        header = header.replace("Bearer ", "");
+        var role = JWT.decode(header).getClaim("role");
+        var name = JWT.decode(header).getClaim("email");
+
         // TODO: (level 2) verify Identity Token
 
-        var user = new User("test@example.com", "");
+        var user = new User(name.toString().replace("\"", ""), role.toString().replace("\"", ""));
+
         SecurityContext context = SecurityContextHolder.getContext();
         context.setAuthentication(new FirebaseAuthentication(user));
 
