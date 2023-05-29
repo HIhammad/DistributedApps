@@ -28,16 +28,16 @@ public class Ticket {
         return airline;
     }
 
-    public UUID getFlightId() {
-        return flightId;
+    public String getFlightId() {
+        return flightId.toString();
     }
 
-    public UUID getSeatId() {
-        return this.seatId;
+    public String getSeatId() {
+        return this.seatId.toString();
     }
 
-    public UUID getTicketId() {
-        return this.ticketId;
+    public String getTicketId() {
+        return this.ticketId.toString();
     }
 
     public String getCustomer() {
@@ -46,6 +46,31 @@ public class Ticket {
 
     public String getBookingReference() {
         return this.bookingReference;
+    }
+
+    public void setAirline(String airline) {
+        this.airline = airline;
+    }
+
+
+    public void setCustomer(String customer) {
+        this.customer = customer;
+    }
+
+    public void setBookingReference(String bookingReference) {
+        this.bookingReference = bookingReference;
+    }
+
+    public void setFlightId(UUID flightId) {
+        this.flightId = flightId;
+    }
+
+    public void setTicketId(UUID ticketId) {
+        this.ticketId = ticketId;
+    }
+
+    public void setSeatId(UUID seatId) {
+        this.seatId = seatId;
     }
 
     @Override

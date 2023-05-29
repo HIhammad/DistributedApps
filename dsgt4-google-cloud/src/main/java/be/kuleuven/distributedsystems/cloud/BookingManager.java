@@ -4,11 +4,9 @@ import be.kuleuven.distributedsystems.cloud.entities.Booking;
 import be.kuleuven.distributedsystems.cloud.entities.User;
 import com.google.api.client.util.ArrayMap;
 import com.google.api.core.ApiFuture;
-import com.google.cloud.firestore.WriteResult;
+import com.google.cloud.firestore.*;
 import org.springframework.stereotype.Component;
-import com.google.cloud.firestore.CollectionReference;
-import com.google.cloud.firestore.DocumentReference;
-import com.google.cloud.firestore.Firestore;
+
 import java.beans.Customizer;
 import java.lang.reflect.Array;
 import java.util.*;
@@ -29,13 +27,29 @@ public class BookingManager {
         this.bookings = new ArrayList<>();
     }
 
-    public Collection<Booking> getBookingOfUser(String userEmail)
-    {
-        ArrayList<Booking> bookingsOfUser = new ArrayList<>();
-        for (Booking booking : this.bookings)
-        {
-            if (booking.getCustomer().equals(userEmail)) bookingsOfUser.add(booking);
+    public Collection<Booking> getBookingOfUser(String userEmail) {
+        CollectionReference bookingsCollection = firestore.collection("bookings");
+        Query query = bookingsCollection.whereEqualTo("customer", userEmail);
+        ApiFuture<QuerySnapshot> querySnapshot = query.get();
+        List<QueryDocumentSnapshot> documents;
+        try {
+            documents = querySnapshot.get().getDocuments();
+        } catch (InterruptedException | ExecutionException e) {
+            System.err.println("Error getting booking documents: " + e.getMessage());
+            return new ArrayList<>(); // Return an empty list if an error occurs
         }
+
+        List<Booking> bookingsOfUser = new ArrayList<>();
+        for (DocumentSnapshot document : documents) {
+            Map<String, Object> bookingMap = document.getData();
+            if (bookingMap != null) {
+                Booking booking = new Booking();
+                booking.setBookingInfoFromMap(bookingMap);
+                booking.setTicketsFromMap((List<Map<String, String>>) bookingMap.get("tickets"));
+                bookingsOfUser.add(booking);
+            }
+        }
+
         return bookingsOfUser;
     }
 
@@ -90,9 +104,28 @@ public class BookingManager {
         return true;
     }
 
-    public ArrayList<Booking> getBookings() {
+    public List<Booking> getBookings() {
+        CollectionReference bookingsCollection = firestore.collection("bookings");
+        ApiFuture<QuerySnapshot> querySnapshot = bookingsCollection.get();
+        List<QueryDocumentSnapshot> documents;
+        try {
+            documents = querySnapshot.get().getDocuments();
+        } catch (InterruptedException | ExecutionException e) {
+            System.err.println("Error getting booking documents: " + e.getMessage());
+            return new ArrayList<>(); // Return an empty list if an error occurs
+        }
+
+        List<Booking> bookings = new ArrayList<>();
+        for (DocumentSnapshot document : documents) {
+            Booking booking = document.toObject(Booking.class);
+            if (booking != null) {
+                bookings.add(booking);
+            }
+        }
+
         return bookings;
     }
+
 
     public void addBooking(Booking booking) {
 
@@ -103,7 +136,7 @@ public class BookingManager {
         data.put("id", booking.getId().toString());
         data.put("time", booking.getTime().toString());
         //data.put("id", booking.getId());
-        //data.put("time", booking.getTime()); how to send it as a time 
+        //data.put("time", booking.getTime()); how to send it as a time
         data.put("tickets", booking.getTickets());
         data.put("customer", booking.getCustomer());
 
@@ -123,7 +156,5 @@ public class BookingManager {
     public void setFirestore(Firestore firestore) {
         this.firestore = firestore;
     }
-
-
 
 }

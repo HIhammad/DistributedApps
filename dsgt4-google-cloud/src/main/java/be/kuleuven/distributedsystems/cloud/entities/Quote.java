@@ -26,16 +26,16 @@ public class Quote {
         this.airline = airline;
     }
 
-    public UUID getFlightId() {
-        return flightId;
+    public String getFlightId() {
+        return flightId.toString();
     }
 
     public void setFlightId(UUID flightId) {
         this.flightId = flightId;
     }
 
-    public UUID getSeatId() {
-        return this.seatId;
+    public String getSeatId() {
+        return this.seatId.toString();
     }
 
     public void setSeatId(UUID seatId) {
