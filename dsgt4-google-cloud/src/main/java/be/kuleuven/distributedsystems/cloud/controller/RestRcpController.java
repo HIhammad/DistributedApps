@@ -3,6 +3,7 @@ package be.kuleuven.distributedsystems.cloud.controller;
 import be.kuleuven.distributedsystems.cloud.BookingManager;
 import be.kuleuven.distributedsystems.cloud.auth.WebSecurityConfig;
 import be.kuleuven.distributedsystems.cloud.entities.*;
+import com.google.cloud.firestore.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.hateoas.HypermediaAutoConfiguration;
 import org.springframework.core.ParameterizedTypeReference;
@@ -148,28 +149,44 @@ public class RestRcpController {
     @PostMapping("/api/confirmQuotes")
     void confirmQuotes(@RequestBody Collection<Quote> quotes) {
 
+        boolean allQuotesConfirmed = true;
+
         UUID bookingRef = bookingManager.getNewUUID();
         ArrayList<Ticket> tickets = new ArrayList<Ticket>();
+        ArrayList<Ticket> ticketsProcess = new ArrayList<Ticket>();
 
-        for (Quote quote : quotes)
-        {
-            var ticket = this.webClient
-                .build()
-                .put()
-                .uri(uriBuilder -> uriBuilder
-                        .pathSegment("flights", quote.getFlightId().toString(), "seats", quote.getSeatId().toString(), "ticket")
-                        .queryParam("customer", WebSecurityConfig.getUser().getEmail())
-                        .queryParam("bookingReference", bookingRef)
-                        .queryParam("key", key)
-                        .build())
-                .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<EntityModel<Ticket>>() {})
-                .block().getContent();
 
-            tickets.add(ticket);
-        }
-        Booking booking = new Booking(bookingRef, LocalDateTime.now(), tickets, WebSecurityConfig.getUser().getEmail());
-        bookingManager.addBooking(booking);
+        for (Quote quote : quotes) {
+                var ticket = this.webClient
+                        .build()
+                        .put()
+                        .uri(uriBuilder -> uriBuilder
+                                .pathSegment("flights", quote.getFlightId().toString(), "seats", quote.getSeatId().toString(), "ticket")
+                                .queryParam("customer", WebSecurityConfig.getUser().getEmail())
+                                .queryParam("bookingReference", bookingRef)
+                                .queryParam("key", key)
+                                .build())
+                        .retrieve()
+                        .bodyToMono(new ParameterizedTypeReference<EntityModel<Ticket>>() {
+                        })
+                        .block().getContent();
+                if(ticket !=null) {
+                    ticketsProcess.add(ticket);
+                } else{
+                    allQuotesConfirmed = false;
+                    ticketsProcess.clear();
+                    break;
+                }
+            }
+
+        if(allQuotesConfirmed) {
+            tickets.addAll(ticketsProcess);
+            Booking booking = new Booking(bookingRef, LocalDateTime.now(), tickets, WebSecurityConfig.getUser().getEmail());
+            bookingManager.addBooking(booking);
+            } else {
+               System.err.println("Failed to reserve all quotes.");
+            }
+
     }
 
     @GetMapping("/api/getBookings")
