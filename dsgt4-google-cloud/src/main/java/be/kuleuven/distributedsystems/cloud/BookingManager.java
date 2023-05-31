@@ -102,27 +102,31 @@ public class BookingManager {
 
     public List<Booking> getBookings() {
         CollectionReference bookingsCollection = firestore.collection("bookings");
-        ApiFuture<QuerySnapshot> querySnapshot = bookingsCollection.get();
-        List<QueryDocumentSnapshot> documents;
+        List<Booking> allBookings = new ArrayList<>();
         try {
-            documents = querySnapshot.get().getDocuments();
+            firestore.runTransaction(transaction -> {
+                QuerySnapshot querySnapshot = transaction.get(bookingsCollection).get();
+                List<QueryDocumentSnapshot> documents = querySnapshot.getDocuments();
+
+                for (DocumentSnapshot document : documents) {
+                    Map<String, Object> bookingMap = document.getData();
+                    if (bookingMap != null) {
+                        Booking booking = new Booking();
+                        booking.setBookingInfoFromMap(bookingMap);
+                        booking.setTicketsFromMap((List<Map<String, String>>) bookingMap.get("tickets"));
+                        allBookings.add(booking);
+                    }
+                }
+                return null;
+            }).get();
         } catch (Exception e) {
             System.err.println("Error getting booking documents: " + e.getMessage());
-            return new ArrayList<>(); // Return an empty list if an error occurs
+            return new ArrayList<>();
         }
 
-        List<Booking> allBookings = new ArrayList<>();
-        for (DocumentSnapshot document : documents) {
-            Map<String, Object> bookingMap = document.getData();
-            if (bookingMap != null) {
-                Booking booking = new Booking();
-                booking.setBookingInfoFromMap(bookingMap);
-                booking.setTicketsFromMap((List<Map<String, String>>) bookingMap.get("tickets"));
-                allBookings.add(booking);
-            }
-        }
-        return bookings;
+        return allBookings;
     }
+
 
 
     public void addBooking(Booking booking) {
