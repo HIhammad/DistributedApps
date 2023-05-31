@@ -145,6 +145,15 @@ public class BookingManager {
             DocumentSnapshot snapshot = transaction.get(bookingDoc).get();
             if (!snapshot.exists()) {
                 transaction.set(bookingDoc, data);
+                //change log
+                CollectionReference changeLogsCollection = firestore.collection("changeLogs");
+                DocumentReference changeLogDoc = changeLogsCollection.document();
+                Map<String, Object> changeLogData = new HashMap<>();
+                changeLogData.put("bookingId", booking.getId().toString());
+                changeLogData.put("action", "add");
+                changeLogData.put("timestamp", FieldValue.serverTimestamp());
+                transaction.set(changeLogDoc, changeLogData);
+                //
                 return "Booking added to Firestore: " + booking.getId();
             } else {
                 throw new Exception("Booking already exists.");
