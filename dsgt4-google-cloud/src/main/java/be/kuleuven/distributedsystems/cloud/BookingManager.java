@@ -5,6 +5,7 @@ import be.kuleuven.distributedsystems.cloud.entities.User;
 import com.google.api.client.util.ArrayMap;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
+import com.google.firebase.internal.NonNull;
 import org.springframework.stereotype.Component;
 
 import java.beans.Customizer;
@@ -34,7 +35,7 @@ public class BookingManager {
         List<QueryDocumentSnapshot> documents;
         try {
             documents = querySnapshot.get().getDocuments();
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (Exception e) {
             System.err.println("Error getting booking documents: " + e.getMessage());
             return new ArrayList<>(); // Return an empty list if an error occurs
         }
@@ -53,37 +54,31 @@ public class BookingManager {
         return bookingsOfUser;
     }
 
-    public Collection<String> getBestCustomer()
-    {
+    public Collection<String> getBestCustomer() {
+        List<Booking> cBookings = getBookings();
         HashMap<String, Integer> customerMap = new HashMap<>();
 
-        for (Booking booking : this.bookings)
-        {
-            if (customerMap.containsKey(booking.getCustomer()))
-            {
-                customerMap.put(booking.getCustomer(), customerMap.get(booking.getCustomer()) + 1);
-            }
-            customerMap.put(booking.getCustomer(), 1);
+        for (Booking booking : cBookings) {
+            String customer = booking.getCustomer();
+            customerMap.put(customer, customerMap.getOrDefault(customer, 0) + 1);
         }
 
-        ArrayList<String> output = new ArrayList<String>();
+        List<String> output = new ArrayList<>();
         int maxvalue = 0;
 
-        for (String user : customerMap.keySet())
-        {
-            if (customerMap.get(user) > maxvalue)
-            {
+        for (String user : customerMap.keySet()) {
+            int count = customerMap.get(user);
+            if (count > maxvalue) {
                 output.clear();
                 output.add(user);
-            }
-            else if (customerMap.get(user) == maxvalue)
-            {
+                maxvalue = count;
+            } else if (count == maxvalue) {
                 output.add(user);
             }
         }
-
         return output;
     }
+
 
     public UUID getNewUUID()
     {
@@ -97,7 +92,8 @@ public class BookingManager {
 
     private boolean isNotPresent(UUID new_uuid)
     {
-        for (Booking booking : this.bookings)
+        List<Booking> newBookings = getBookings();
+        for (Booking booking : newBookings)
         {
             if (booking.getId().equals(new_uuid)) return false;
         }
@@ -110,19 +106,21 @@ public class BookingManager {
         List<QueryDocumentSnapshot> documents;
         try {
             documents = querySnapshot.get().getDocuments();
-        } catch (InterruptedException | ExecutionException e) {
+        } catch (Exception e) {
             System.err.println("Error getting booking documents: " + e.getMessage());
             return new ArrayList<>(); // Return an empty list if an error occurs
         }
 
-        List<Booking> bookings = new ArrayList<>();
+        List<Booking> allBookings = new ArrayList<>();
         for (DocumentSnapshot document : documents) {
-            Booking booking = document.toObject(Booking.class);
-            if (booking != null) {
-                bookings.add(booking);
+            Map<String, Object> bookingMap = document.getData();
+            if (bookingMap != null) {
+                Booking booking = new Booking();
+                booking.setBookingInfoFromMap(bookingMap);
+                booking.setTicketsFromMap((List<Map<String, String>>) bookingMap.get("tickets"));
+                allBookings.add(booking);
             }
         }
-
         return bookings;
     }
 
@@ -135,23 +133,30 @@ public class BookingManager {
         Map<String, Object> data = new HashMap<>();
         data.put("id", booking.getId().toString());
         data.put("time", booking.getTime().toString());
-        //data.put("id", booking.getId());
-        //data.put("time", booking.getTime()); how to send it as a time
         data.put("tickets", booking.getTickets());
         data.put("customer", booking.getCustomer());
 
-        ApiFuture<WriteResult> result = bookingDoc.set(data);
+
+        ApiFuture<String> futureTransaction = firestore.runTransaction(transaction -> {
+            DocumentSnapshot snapshot = transaction.get(bookingDoc).get();
+            if (!snapshot.exists()) {
+                transaction.set(bookingDoc, data);
+                return "Booking added to Firestore: " + booking.getId();
+            } else {
+                throw new Exception("Booking already exists.");
+            }
+        });
+
         try {
-            WriteResult writeResult = result.get();
-            // Write operation completed successfully
-            System.out.println("Booking added to Firestore: " + booking.getId());
-        } catch (InterruptedException | ExecutionException e) {
-            // Handle exceptions
+            System.out.println(futureTransaction.get());
+            this.bookings.add(booking);
+        } catch (Exception e) {
             System.err.println("Error adding booking to Firestore: " + e.getMessage());
         }
 
         this.bookings.add(booking);
     }
+
 
     public void setFirestore(Firestore firestore) {
         this.firestore = firestore;

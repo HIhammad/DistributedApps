@@ -42,6 +42,14 @@
         </dependencies>
     </dependencyManagement>
 
+    <repositories>
+
+        <repository>
+            <id>firebase-adminsdk</id>
+            <url>https://maven.pkg.github.com/firebase/firebase-admin-java</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -76,6 +84,14 @@
         </dependency>
 
         <dependency>
+            <groupId>com.google.firebase</groupId>
+            <artifactId>firebase-admin</artifactId>
+            <version>9.1.1</version>
+        </dependency>
+
+
+
+        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-aspects</artifactId>
             <version>5.2.8.RELEASE</version>
@@ -95,15 +111,11 @@
             <artifactId>google-cloud-pubsub</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.google.cloud</groupId>
-            <artifactId>google-cloud-firestore</artifactId>
-        </dependency>
-
 
         <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-firestore</artifactId>
+            <version>2.1.0</version>
         </dependency>
 
 
