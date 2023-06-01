@@ -41,6 +41,13 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+    <repositories>
+
+        <repository>
+            <id>firebase-adminsdk</id>
+            <url>https://maven.pkg.github.com/firebase/firebase-admin-java</url>
+        </repository>
+    </repositories>
 
     <dependencies>
         <dependency>
@@ -57,6 +64,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jetty</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.firebase</groupId>
+            <artifactId>firebase-admin</artifactId>
+            <version>9.1.1</version>
         </dependency>
 
         <dependency>

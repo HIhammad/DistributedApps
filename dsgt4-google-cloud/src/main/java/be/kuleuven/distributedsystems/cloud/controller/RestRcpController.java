@@ -227,6 +227,8 @@ public class RestRcpController {
         try {
             UUID bookingRef = bookingManager.getNewUUID();
             ArrayList<Ticket> tickets = new ArrayList<>();
+            boolean allQuotesConfirmed = true;
+            ArrayList<Ticket> ticketsProcess = new ArrayList<Ticket>();
 
             for (Quote quote : quotes) {
                 var ticket = this.webClient
@@ -247,11 +249,22 @@ public class RestRcpController {
                         .block()
                         .getContent();
 
-                tickets.add(ticket);
+                if(ticket !=null) {
+                    ticketsProcess.add(ticket);
+                } else{
+                    allQuotesConfirmed = false;
+                    ticketsProcess.clear();
+                    break;
+                }
             }
 
-            Booking booking = new Booking(bookingRef, LocalDateTime.now(), tickets, WebSecurityConfig.getUser().getEmail());
-            bookingManager.addBooking(booking);
+            if(allQuotesConfirmed) {
+                tickets.addAll(ticketsProcess);
+                Booking booking = new Booking(bookingRef, LocalDateTime.now(), tickets, WebSecurityConfig.getUser().getEmail());
+                bookingManager.addBooking(booking);
+            } else {
+                System.err.println("Failed to reserve all quotes.");
+            }
         } catch (WebClientResponseException ex) {
             throw new RuntimeException("Exception occurred during WebClient request");
         }
