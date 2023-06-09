@@ -1,6 +1,7 @@
 package be.kuleuven.distributedsystems.cloud;
 
 import be.kuleuven.distributedsystems.cloud.entities.Booking;
+import com.google.auth.oauth2.ServiceAccountCredentials;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
@@ -18,6 +19,7 @@ import com.google.cloud.firestore.FirestoreOptions;
 
 import com.google.auth.oauth2.GoogleCredentials;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -30,6 +32,7 @@ public class Application {
 
     @SuppressWarnings("unchecked")
     public static void main(String[] args) throws IOException {
+
         System.setProperty("server.port", System.getenv().getOrDefault("PORT", "8080"));
 
         ApplicationContext context = SpringApplication.run(Application.class, args);
@@ -55,11 +58,15 @@ public class Application {
 
     @Bean
     public static Firestore firestore() throws IOException {
+
+        FileInputStream refreshToken = new FileInputStream("serviceAccountKey.json");
         FirestoreOptions firestoreOptions = FirestoreOptions.getDefaultInstance().toBuilder()
                 .setProjectId(projectId())
-                .setCredentials(GoogleCredentials.getApplicationDefault())
+                .setCredentials(ServiceAccountCredentials.fromStream(refreshToken))
                 .build();
+
         return firestoreOptions.getService();
+
     }
 
     /*
