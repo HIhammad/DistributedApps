@@ -1,6 +1,5 @@
 package be.kuleuven.distributedsystems.cloud;
 
-import be.kuleuven.distributedsystems.cloud.entities.Booking;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -17,14 +16,10 @@ import reactor.netty.http.client.HttpClient;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.FirestoreOptions;
 
-import com.google.auth.oauth2.GoogleCredentials;
-
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.time.LocalDateTime;
+import java.io.InputStream;
 import java.util.Objects;
-import java.util.UUID;
 
 @EnableHypermediaSupport(type = EnableHypermediaSupport.HypermediaType.HAL)
 @SpringBootApplication
@@ -59,7 +54,9 @@ public class Application {
     @Bean
     public static Firestore firestore() throws IOException {
 
-        FileInputStream refreshToken = new FileInputStream("serviceAccountKey.json");
+        ClassLoader classLoader = Application.class.getClassLoader();
+        InputStream refreshToken = classLoader.getResourceAsStream("serviceAccountKey.json");
+
         FirestoreOptions firestoreOptions = FirestoreOptions.getDefaultInstance().toBuilder()
                 .setProjectId(projectId())
                 .setCredentials(ServiceAccountCredentials.fromStream(refreshToken))

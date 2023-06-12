@@ -16,6 +16,7 @@ import { Cart } from "./cart.js";
 import { Account } from "./account.js";
 import { Manager } from "./manager.js";
 import { Login } from "./login.js";
+//import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-analytics.js";
 
 const html = htm.bind(h);
 
@@ -27,12 +28,21 @@ if (location.hostname === "localhost") {
   };
 } else {
   firebaseConfig = {
-    // TODO: for level 2, paste your config here
+    apiKey: "AIzaSyCESK_cNiFPep8euunzsyQDd0Ql6pGlA6I",
+    authDomain: "distributed-apps.firebaseapp.com",
+    projectId: "distributed-apps",
+    storageBucket: "distributed-apps.appspot.com",
+    messagingSenderId: "200256636796",
+    appId: "1:200256636796:web:7f4ee367a156727e6d46f9",
+    measurementId: "G-7H7QBB9NPV"
   };
 }
 
 const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
+
+//const analytics = getAnalytics(app);
+
 setAuth(auth);
 if (location.hostname === "localhost") {
   connectAuthEmulator(auth, "http://localhost:8082", { disableWarnings: true });

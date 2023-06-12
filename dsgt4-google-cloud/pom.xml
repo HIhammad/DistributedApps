@@ -186,7 +186,7 @@
                 <version>2.4.4</version>
                 <configuration>
                     <version>1</version>
-                    <projectId>TODO-level-2</projectId>
+                    <projectId>distributed-apps</projectId>
                     <cloudSdkVersion>404.0.0</cloudSdkVersion>
                 </configuration>
             </plugin>
