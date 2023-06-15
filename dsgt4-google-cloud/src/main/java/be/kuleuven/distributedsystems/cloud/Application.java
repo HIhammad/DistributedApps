@@ -20,7 +20,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
-import java.util.concurrent.ExecutionException;
 
 @EnableHypermediaSupport(type = EnableHypermediaSupport.HypermediaType.HAL)
 @SpringBootApplication
@@ -39,14 +38,7 @@ public class Application {
         //Booking demo = new Booking(UUID.randomUUID(), LocalDateTime.now(), null, null);
         //bookingManager.addBooking(demo);
         // TODO: (level 2) load this data into Firestore
-        DataInitializer dataInitializer = new DataInitializer();
-        try {
-            dataInitializer.initializeDataIfNeeded(firestore);
-        } catch (ExecutionException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        String data = new String(new ClassPathResource("data.json").getInputStream().readAllBytes());
     }
 
     @Bean
