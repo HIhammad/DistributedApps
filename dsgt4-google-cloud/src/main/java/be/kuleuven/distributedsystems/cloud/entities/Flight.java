@@ -42,6 +42,26 @@ public class Flight {
         return this.image;
     }
 
+    public void setFlightId(String flightId) {
+        this.flightId = UUID.fromString(flightId);
+    }
+
+    public void setAirline(String airline) {
+        this.airline = airline;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof Flight)) {

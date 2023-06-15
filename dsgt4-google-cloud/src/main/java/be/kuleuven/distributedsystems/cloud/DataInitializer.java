@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 public class DataInitializer {
@@ -48,7 +49,9 @@ public class DataInitializer {
                 String name = flightObject.get("name").getAsString();
                 String location = flightObject.get("location").getAsString();
                 String image = flightObject.get("image").getAsString();
-
+                //add info to make it similar to reliable airline
+                String airline = "Internal Airline";
+                UUID flightID = UUID.randomUUID();
                 // Create a collection and document reference for the flight
                 System.out.println("inside for loop");
                 CollectionReference InternalFlights = firestore.collection("InternalFlights");
@@ -63,7 +66,8 @@ public class DataInitializer {
                     flightData.put("name", name);
                     flightData.put("location", location);
                     flightData.put("image", image);
-
+                    flightData.put("airline",airline);
+                    flightData.put("flightID", flightID.toString());
                     ApiFuture<WriteResult> result = flightDocRef.set(flightData);
                     try {
                         WriteResult writeResult = result.get();
@@ -86,7 +90,7 @@ public class DataInitializer {
                             String type = seatObject.get("type").getAsString();
                             String seatName = seatObject.get("name").getAsString();
                             double price = seatObject.get("price").getAsDouble();
-
+                            UUID seatID = UUID.randomUUID();
                             // Create a document reference for the seat
                             DocumentReference seatDocRef = seatsCollection.document(seatName);
 
@@ -99,6 +103,7 @@ public class DataInitializer {
                                 seatData.put("type", type);
                                 seatData.put("name", seatName);
                                 seatData.put("price", price);
+                                seatData.put("seatID", seatID.toString());
 
                                 seatDocRef.set(seatData);
                                 System.out.println("Added seat: " + seatName + " for flight: " + name);
