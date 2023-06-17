@@ -1,5 +1,6 @@
 package be.kuleuven.distributedsystems.cloud;
 
+import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -67,11 +68,17 @@ public class Application {
 
         FirestoreOptions firestoreOptions = FirestoreOptions.getDefaultInstance().toBuilder()
                 .setProjectId(projectId())
-                .setCredentials(ServiceAccountCredentials.fromStream(refreshToken))
+                .setCredentials(GoogleCredentials.fromStream(refreshToken))
                 .build();
-
         return firestoreOptions.getService();
 
+        /*
+        FirestoreOptions firestoreOptions = FirestoreOptions.getDefaultInstance().toBuilder()
+                .setProjectId(projectId())
+                .setCredentials(GoogleCredentials.getApplicationDefault())
+                .build();
+        return firestoreOptions.getService();
+        */
     }
 
     /*
