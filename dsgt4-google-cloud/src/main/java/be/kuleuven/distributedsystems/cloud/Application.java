@@ -2,6 +2,8 @@ package be.kuleuven.distributedsystems.cloud;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
@@ -17,9 +19,7 @@ import reactor.netty.http.client.HttpClient;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.firestore.FirestoreOptions;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
@@ -63,22 +63,16 @@ public class Application {
     @Bean
     public static Firestore firestore() throws IOException {
 
-        ClassLoader classLoader = Application.class.getClassLoader();
-        InputStream refreshToken = classLoader.getResourceAsStream("serviceAccountKey.json");
-
-        FirestoreOptions firestoreOptions = FirestoreOptions.getDefaultInstance().toBuilder()
-                .setProjectId(projectId())
-                .setCredentials(GoogleCredentials.fromStream(refreshToken))
+        InputStream serviceAccount = Application.class.getResourceAsStream("/serviceAccountKey.json");
+        GoogleCredentials credentials = GoogleCredentials.fromStream(serviceAccount);
+        if (serviceAccount == null) {
+            throw new FileNotFoundException("serviceAccountKey.json not found");
+        }
+        FirestoreOptions firestoreOptions = FirestoreOptions.newBuilder()
+                .setCredentials(credentials)
                 .build();
         return firestoreOptions.getService();
 
-        /*
-        FirestoreOptions firestoreOptions = FirestoreOptions.getDefaultInstance().toBuilder()
-                .setProjectId(projectId())
-                .setCredentials(GoogleCredentials.getApplicationDefault())
-                .build();
-        return firestoreOptions.getService();
-        */
     }
 
     /*
